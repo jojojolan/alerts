@@ -21,7 +21,7 @@ logging.basicConfig(
 OREF = r"https://www.oref.org.il/WarningMessages/alert/alerts.json"
 alert_log_file_name = r"alerts.json"
 
-def monitor_alerts():  
+def monitor_alerts(prev_alert_id: str):  
    
     try:
         # Added a timeout so the script doesn't hang indefinitely 
@@ -32,10 +32,16 @@ def monitor_alerts():
 
             if r.text.strip(): 
                 alert_data = r.json()
-                alert_dump = {field: alert_data[field] for field in ["cat","title","data"]}
+
+                # Checks for the same Id
+                if alert_data["id"] == prev_alert_id:
+                    logging.info("Still the Same alert ID...")
+                    return 
+                
+                alert_dump = {field: alert_data[field] for field in ["id","cat","title","data"]}
                 
                 # Log the alert to our system log
-                logging.warning(f"!! ALERT DETECTED: {alert_data["title"]}")
+                logging.warning(f"!! ALERT DETECTED: {alert_dump["title"]}")
                 
                 # Append the raw JSON data to your specific data file
                 with open(alert_log_file_name, "a", encoding='utf-8') as f:
@@ -55,17 +61,19 @@ def monitor_alerts():
         logging.error(f"An unexpected error occurred: {e}")
     
 
-
 def send_check(alerts_list: list):
     """Send Whatsapp DM to however is in the city list"""
     pass
 
 def main():
     logging.info("Starting Red Alert monitor...")
+    alert_id = "42"
     while True:
-        alerts = monitor_alerts()
+        alerts = monitor_alerts(alert_id)
         
         # if alerts:
+        #     alert_id = alerts["id"]
+            
         #     # ירי רקטות וטילים or חדירת כלי טיס עוין
         #     if alerts["cat"] in ["1","6"]:
         #         send_check(alerts["data"])
