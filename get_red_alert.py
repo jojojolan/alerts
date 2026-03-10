@@ -10,7 +10,8 @@ import json
 # --- 1. Configure the Logger ---
 # This sets up logging to output to BOTH the console and a file.
 logging.basicConfig(
-    level=logging.INFO, # Change to logging.DEBUG to see the "Nothing Yet..." messages
+    # level=logging.INFO, # Change to logging.DEBUG to see the "Nothing Yet..." messages
+    level=logging.DEBUG,
     format='%(asctime)s | %(levelname)s | %(message)s',
     handlers=[
         logging.FileHandler("red_alert_monitor.log", encoding='utf-8'),
@@ -34,7 +35,7 @@ def monitor_alerts():
             if r.status_code == 200:
 
                 if r.text.strip(): 
-                    alert_data = r.json()
+                    alert_data = r.json()["data"]
                     
                     # Log the alert to our system log
                     logging.warning(f"!! ALERT DETECTED: {alert_data}")
